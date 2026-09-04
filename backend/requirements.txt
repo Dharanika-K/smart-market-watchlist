@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pymongo
+yfinance
+pydantic
+python-dotenv
