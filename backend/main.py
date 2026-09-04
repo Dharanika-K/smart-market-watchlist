@@ -170,6 +170,39 @@ def remove_stock(
 # ---------------------------------------
 # GET CURRENT STOCK
 # ---------------------------------------
+@app.get("/stocks/search")
+def search_stocks(q: str):
+    stocks = [
+        {"symbol": "AAPL", "name": "Apple Inc."},
+        {"symbol": "NVDA", "name": "NVIDIA Corporation"},
+        {"symbol": "TSLA", "name": "Tesla Inc."},
+        {"symbol": "MSFT", "name": "Microsoft Corporation"},
+        {"symbol": "AMZN", "name": "Amazon.com Inc."},
+        {"symbol": "GOOGL", "name": "Alphabet Inc."},
+        {"symbol": "META", "name": "Meta Platforms Inc."},
+        {"symbol": "AMD", "name": "Advanced Micro Devices Inc."},
+        {"symbol": "NFLX", "name": "Netflix Inc."},
+        {"symbol": "INTC", "name": "Intel Corporation"},
+        {"symbol": "ORCL", "name": "Oracle Corporation"},
+        {"symbol": "JPM", "name": "JPMorgan Chase & Co."},
+        {"symbol": "V", "name": "Visa Inc."},
+        {"symbol": "WMT", "name": "Walmart Inc."},
+        {"symbol": "DIS", "name": "The Walt Disney Company"},
+    ]
+
+    query = q.strip().lower()
+
+    if not query:
+        return []
+
+    results = [
+        stock
+        for stock in stocks
+        if query in stock["symbol"].lower()
+        or query in stock["name"].lower()
+    ]
+
+    return results[:8]
 
 @app.get("/stocks/{symbol}")
 def get_stock(symbol: str):

@@ -484,3 +484,142 @@ footer {
     transform: translateY(0);
   }
 }
+/* Delete Confirmation Modal */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 2000;
+}
+
+.delete-modal {
+  width: 400px;
+  max-width: calc(100% - 40px);
+
+  background: white;
+  border-radius: 12px;
+
+  padding: 25px;
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+
+  animation: modalPop 0.2s ease-out;
+}
+
+.delete-modal h3 {
+  margin: 0 0 10px;
+  color: #172033;
+  font-size: 20px;
+}
+
+.delete-modal p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.cancel-btn {
+  padding: 10px 16px;
+
+  border: 1px solid #d7dce5;
+  background: white;
+  color: #172033;
+
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #f3f4f6;
+}
+
+.confirm-delete-btn {
+  padding: 10px 16px;
+
+  border: none;
+  background: #dc2626;
+  color: white;
+
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-delete-btn:hover {
+  background: #b91c1c;
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.stock-search {
+  position: relative;
+  flex: 1;
+}
+
+.stock-search input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+
+  background: white;
+  border: 1px solid #d7dce5;
+  border-radius: 8px;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+
+  z-index: 100;
+  overflow: hidden;
+}
+
+.suggestion-item {
+  padding: 12px 14px;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.suggestion-item:hover {
+  background: #f3f4f6;
+}
+
+.suggestion-item strong {
+  color: #172033;
+  font-size: 14px;
+}
+
+.suggestion-item span {
+  color: #6b7280;
+  font-size: 13px;
+}

@@ -12,6 +12,9 @@ function App() {
   const [newStock, setNewStock] = useState("");
   const [newWatchlist, setNewWatchlist] = useState("");
   const [toast, setToast] = useState("");
+  const [deleteStock, setDeleteStock] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
+
   // Load watchlists
   const loadWatchlists = async () => {
     try {
@@ -71,7 +74,25 @@ function App() {
       console.error("Failed to create watchlist:", error);
     }
   };
+  const searchStocks = async (value) => {
+  setNewStock(value);
 
+  if (!value.trim()) {
+    setSuggestions([]);
+    return;
+  }
+
+  try {
+    const response = await axios.get(
+      `${API}/stocks/search?q=${value}`
+    );
+
+    setSuggestions(response.data);
+  } catch (error) {
+    console.error("Stock search failed:", error);
+    setSuggestions([]);
+  }
+};
   // Add stock
   const addStock = async () => {
     if (!newStock.trim() || !selectedWatchlist) return;
@@ -164,11 +185,44 @@ const removeStock = async (symbol) => {
 
   return (
     <div className="app">
+      {deleteStock && (
+  <div className="modal-overlay">
+    <div className="delete-modal">
+      <h3>Remove {deleteStock}?</h3>
+
+      <p>
+        Are you sure you want to remove{" "}
+        <strong>{deleteStock}</strong> from this watchlist?
+      </p>
+
+      <div className="modal-actions">
+        <button
+          className="cancel-btn"
+          onClick={() => setDeleteStock(null)}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="confirm-delete-btn"
+          onClick={() => {
+            removeStock(deleteStock);
+            setDeleteStock(null);
+          }}
+        >
+          Yes, Remove
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {toast && (
   <div className="toast">
     {toast}
   </div>
+  
 )}
+
       {/* Header */}
       <header className="header">
         <div>
@@ -223,21 +277,43 @@ const removeStock = async (symbol) => {
           </div>
         </section>
 
-        {/* Add stock */}
         <section className="add-stock">
-          <input
-            value={newStock}
-            onChange={(e) => setNewStock(e.target.value)}
-            placeholder="Enter stock symbol e.g. AAPL"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") addStock();
-            }}
-          />
+  <div className="stock-search">
+    <input
+      value={newStock}
+      onChange={(e) => searchStocks(e.target.value)}
+      placeholder="Search stock e.g. NVIDIA, AAPL..."
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          addStock();
+          setSuggestions([]);
+        }
+      }}
+    />
 
-          <button onClick={addStock}>
-            + Add Stock
-          </button>
-        </section>
+    {suggestions.length > 0 && (
+      <div className="suggestions">
+        {suggestions.map((stock) => (
+          <div
+            className="suggestion-item"
+            key={stock.symbol}
+            onClick={() => {
+              setNewStock(stock.symbol);
+              setSuggestions([]);
+            }}
+          >
+            <strong>{stock.name}</strong>
+            <span>{stock.symbol}</span>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+
+  <button onClick={addStock}>
+    + Add Stock
+  </button>
+</section>
 
         {/* Summary */}
         <section className="summary">
@@ -386,10 +462,10 @@ const removeStock = async (symbol) => {
 
                       <button
                         className="remove-btn"
-                        onClick={() => removeStock(item.symbol)}
-                      >
-                        Remove
-                      </button>
+                        onClick={() => setDeleteStock(item.symbol)}
+                    >
+                      Remove
+                    </button>
                     </div>
                     </>
                   )}
