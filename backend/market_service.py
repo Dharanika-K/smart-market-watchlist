@@ -31,11 +31,14 @@ def get_stock_data(symbol: str):
     else:
         volume_ratio = 1
 
+    retrieved_at = datetime.now(timezone.utc)
+
     return {
         "symbol": symbol,
         "price": current_price,
         "volume": current_volume,
         "average_volume": average_volume,
         "volume_ratio": volume_ratio,
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": retrieved_at.isoformat(),
+        "data_status": "FRESH"
     }

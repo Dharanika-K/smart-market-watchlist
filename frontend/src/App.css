@@ -623,3 +623,20 @@ footer {
   color: #6b7280;
   font-size: 13px;
 }
+.chart-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #eef0f4;
+}
+
+.chart-section h4 {
+  margin: 0 0 10px;
+  color: #172033;
+  font-size: 14px;
+}
+.data-status {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+}

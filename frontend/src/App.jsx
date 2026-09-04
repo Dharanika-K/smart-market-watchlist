@@ -1,4 +1,12 @@
 import { useEffect, useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import axios from "axios";
 import "./App.css";
 
@@ -14,6 +22,7 @@ function App() {
   const [toast, setToast] = useState("");
   const [deleteStock, setDeleteStock] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
+  const [chartData, setChartData] = useState({});
 
   // Load watchlists
   const loadWatchlists = async () => {
@@ -41,6 +50,11 @@ function App() {
       );
 
       setChanges(response.data);
+      response.data.forEach((item) => {
+  if (!item.error) {
+    loadChartData(item.symbol);
+  }
+});
     } catch (error) {
       console.error("Failed to load changes:", error);
     } finally {
@@ -175,7 +189,20 @@ const removeStock = async (symbol) => {
     }, 3000);
   }
 };
+const loadChartData = async (symbol) => {
+  try {
+    const response = await axios.get(
+      `${API}/stocks/${symbol}/history`
+    );
 
+    setChartData((prev) => ({
+      ...prev,
+      [symbol]: response.data.history,
+    }));
+  } catch (error) {
+    console.error(`Failed to load chart for ${symbol}:`, error);
+  }
+};
   const getSeverityClass = (severity) => {
     if (severity === "HIGH") return "high";
     if (severity === "MEDIUM") return "medium";
@@ -417,6 +444,9 @@ const removeStock = async (symbol) => {
                           ).toFixed(2)}
                           %
                         </div>
+                        <div className="data-status">
+                          🟢 Fresh market data
+                        </div>
                       </div>
 
                       <div className="metrics">
@@ -451,7 +481,40 @@ const removeStock = async (symbol) => {
                           <p>No meaningful changes detected.</p>
                         )}
                       </div>
+                      {chartData[item.symbol]?.length > 0 && (
+                      <div className="chart-section">
+                        <h4>Price Trend</h4>
 
+                        <ResponsiveContainer width="100%" height={180}>
+                          <LineChart data={chartData[item.symbol]}>
+                            <XAxis
+                              dataKey="time"
+                              hide
+                            />
+
+                            <YAxis
+                              domain={["auto", "auto"]}
+                              hide
+                            />
+
+                            <Tooltip
+                              formatter={(value) => [
+                                `$${Number(value).toFixed(2)}`,
+                                "Price",
+                              ]}
+                              labelFormatter={(label) => label}
+                            />
+
+                            <Line
+                              type="monotone"
+                              dataKey="price"
+                              strokeWidth={2}
+                              dot={false}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
                       <div className="card-actions">
                       <button
                         className="check-btn"

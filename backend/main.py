@@ -203,7 +203,37 @@ def search_stocks(q: str):
     ]
 
     return results[:8]
+@app.get("/stocks/{symbol}/history")
+def get_stock_history(symbol: str):
+    try:
+        import yfinance as yf
 
+        symbol = symbol.upper().strip()
+
+        ticker = yf.Ticker(symbol)
+        history = ticker.history(period="5d", interval="1h")
+
+        if history.empty:
+            raise ValueError(f"No market history found for {symbol}")
+
+        result = []
+
+        for index, row in history.iterrows():
+            result.append({
+                "time": index.strftime("%Y-%m-%d %H:%M"),
+                "price": round(float(row["Close"]), 2)
+            })
+
+        return {
+            "symbol": symbol,
+            "history": result
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
 @app.get("/stocks/{symbol}")
 def get_stock(symbol: str):
 
