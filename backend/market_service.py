@@ -2,6 +2,27 @@ import yfinance as yf
 from datetime import datetime, timezone
 
 
+def get_data_status(timestamp):
+    try:
+        data_time = datetime.fromisoformat(
+            timestamp.replace("Z", "+00:00")
+        )
+
+        age_seconds = (
+            datetime.now(timezone.utc) - data_time
+        ).total_seconds()
+
+        if age_seconds <= 60:
+            return "FRESH"
+
+        elif age_seconds <= 300:
+            return "STALE"
+
+        else:
+            return "DELAYED"
+
+    except Exception:
+        return "UNKNOWN"
 def get_stock_data(symbol: str):
     symbol = symbol.upper().strip()
 
@@ -40,5 +61,49 @@ def get_stock_data(symbol: str):
         "average_volume": average_volume,
         "volume_ratio": volume_ratio,
         "timestamp": retrieved_at.isoformat(),
-        "data_status": "FRESH"
+        "data_status": get_data_status(
+            retrieved_at.isoformat()
+        )
     }
+def get_market_events(symbol: str):
+    symbol = symbol.upper().strip()
+
+    events = {
+        "AAPL": [
+            {
+                "type": "Earnings",
+                "title": "Apple earnings update",
+                "impact": "HIGH"
+            }
+        ],
+        "NVDA": [
+            {
+                "type": "AI / Tech",
+                "title": "AI semiconductor market activity",
+                "impact": "HIGH"
+            }
+        ],
+        "TSLA": [
+            {
+                "type": "Automotive",
+                "title": "Tesla automotive market activity",
+                "impact": "MEDIUM"
+            }
+        ],
+        "MSFT": [
+            {
+                "type": "Technology",
+                "title": "Microsoft technology market activity",
+                "impact": "MEDIUM"
+            }
+        ],
+        "AMZN": [
+            {
+                "type": "Retail / Cloud",
+                "title": "Amazon business activity",
+                "impact": "MEDIUM"
+            }
+        ]
+    }
+
+    return events.get(symbol, [])

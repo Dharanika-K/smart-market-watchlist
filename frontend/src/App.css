@@ -640,3 +640,265 @@ footer {
   color: #16a34a;
   font-weight: 600;
 }
+.data-info {
+  margin-top: 8px;
+}
+
+.data-status {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.data-status.fresh {
+  color: #16a34a;
+}
+
+.data-status.stale {
+  color: #ca8a04;
+}
+
+.data-status.delayed {
+  color: #ea580c;
+}
+
+.data-status.unknown {
+  color: #6b7280;
+}
+
+.last-checked {
+  margin-top: 3px;
+  font-size: 11px;
+  color: #6b7280;
+}
+.events-section {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid #eef0f4;
+}
+
+.events-section h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #172033;
+}
+
+.event-item {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.event-type {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.event-high,
+.event-medium,
+.event-low {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 7px;
+  border-radius: 5px;
+}
+
+.event-high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.event-medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.event-low {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.event-item p {
+  margin: 7px 0 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+.change-heading {
+  margin-bottom: 15px;
+}
+
+.change-heading h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #172033;
+}
+
+.change-heading p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+/* ================================
+   FINAL UI POLISH
+================================ */
+
+.header {
+  background: linear-gradient(135deg, #111827, #1e293b);
+  padding: 30px 7%;
+}
+
+.header h1 {
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.container {
+  padding-bottom: 20px;
+}
+
+/* Watchlist section */
+
+.watchlist-bar {
+  border: 1px solid #e8ebf0;
+}
+
+.create-watchlist input:focus,
+.stock-search input:focus,
+.add-stock input:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Summary cards */
+
+.summary div {
+  border: 1px solid #e8ebf0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.summary div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+/* Change heading */
+
+.change-heading {
+  margin-top: 35px;
+}
+
+/* Stock cards */
+
+.stock-card {
+  border-top: 1px solid #eef0f4;
+}
+
+.stock-card.high {
+  background: linear-gradient(
+    to bottom right,
+    #ffffff,
+    #fffafa
+  );
+}
+
+.stock-card.medium {
+  background: linear-gradient(
+    to bottom right,
+    #ffffff,
+    #fffdf5
+  );
+}
+
+.stock-card.normal {
+  background: linear-gradient(
+    to bottom right,
+    #ffffff,
+    #fafffb
+  );
+}
+
+/* Severity badges */
+
+.stock-card.high .severity {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.stock-card.medium .severity {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.stock-card.low .severity {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.stock-card.normal .severity {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Buttons */
+
+.create-watchlist button,
+.add-stock button {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.create-watchlist button:hover,
+.add-stock button:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.check-btn {
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.check-btn:hover {
+  border-color: #cbd5e1;
+}
+
+/* Error state */
+
+.error {
+  border: 1px solid #fecaca;
+}
+
+/* Empty state */
+
+.empty h3 {
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+/* Responsive cards */
+
+@media (max-width: 900px) {
+  .watchlist-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .create-watchlist {
+    width: 100%;
+  }
+
+  .create-watchlist input {
+    flex: 1;
+  }
+}

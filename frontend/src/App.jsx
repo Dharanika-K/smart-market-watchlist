@@ -134,9 +134,18 @@ function App() {
 
       loadChanges(updated.id);
     } catch (error) {
-      console.error("Failed to add stock:", error);
-      alert("Unable to add stock. Check the stock symbol.");
-    }
+  console.error("Failed to add stock:", error);
+
+  const message =
+    error.response?.data?.detail ||
+    "Unable to add stock. Please try again.";
+
+  setToast(`⚠️ ${message}`);
+
+  setTimeout(() => {
+    setToast("");
+  }, 3000);
+}
   };
 
   // Mark stock as checked
@@ -202,6 +211,15 @@ const loadChartData = async (symbol) => {
   } catch (error) {
     console.error(`Failed to load chart for ${symbol}:`, error);
   }
+};
+const formatLastChecked = (timestamp) => {
+  if (!timestamp) {
+    return "Not checked yet";
+  }
+
+  const date = new Date(timestamp);
+
+  return `Last checked ${date.toLocaleString()}`;
 };
   const getSeverityClass = (severity) => {
     if (severity === "HIGH") return "high";
@@ -389,8 +407,60 @@ const loadChartData = async (symbol) => {
               <p>Add a stock above to start monitoring the market.</p>
             </div>
           ) : (
+            <>
+            
+
+              <div className="summary-item medium">
+                <span>Medium Impact</span>
+                <strong>
+                  {changes.filter(
+                    (item) => item.severity === "MEDIUM"
+                  ).length}
+                </strong>
+              </div>
+
+              <div className="summary-item stable">
+                <span>Stable</span>
+                <strong>
+                  {changes.filter(
+                    (item) =>
+                      item.severity === "LOW" ||
+                      item.severity === "NORMAL"
+                  ).length}
+                </strong>
+              </div>
+            <div className="change-intro">
+              <div>
+                <span className="change-label">MARKET INTELLIGENCE</span>
+                <h3>Here’s what changed</h3>
+                <p>
+                  Your watchlist is ranked by the significance of recent market changes.
+                </p>
+              </div>
+
+              <div className="change-count">
+                {changes.filter(
+                  (item) =>
+                    item.severity === "HIGH" ||
+                    item.severity === "MEDIUM"
+                ).length}
+                <span>need attention</span>
+              </div>
+            </div>
             <div className="cards">
-              {changes.map((item) => (
+              {[...changes]
+                .sort((a, b) => {
+                  const order = {
+                    HIGH: 1,
+                    MEDIUM: 2,
+                    LOW: 3,
+                    NORMAL: 4,
+                  };
+
+                  return (order[a.severity] || 5) - (order[b.severity] || 5);
+                })
+                .map((item) => (
+                
                 <div
                   className={`stock-card ${getSeverityClass(
                     item.severity
@@ -444,8 +514,21 @@ const loadChartData = async (symbol) => {
                           ).toFixed(2)}
                           %
                         </div>
-                        <div className="data-status">
-                          🟢 Fresh market data
+                        <div className="data-info">
+                          <div
+                            className={`data-status ${
+                              item.data_status?.toLowerCase()
+                            }`}
+                          >
+                            {item.data_status === "FRESH" && "🟢 Fresh market data"}
+                            {item.data_status === "STALE" && "🟡 Stale market data"}
+                            {item.data_status === "DELAYED" && "🟠 Delayed market data"}
+                            {item.data_status === "UNKNOWN" && "⚪ Data status unknown"}
+                          </div>
+
+                          <div className="last-checked">
+                            {formatLastChecked(item.last_checked)}
+                          </div>
                         </div>
                       </div>
 
@@ -481,6 +564,36 @@ const loadChartData = async (symbol) => {
                           <p>No meaningful changes detected.</p>
                         )}
                       </div>
+                      {item.events?.length > 0 && (
+                        <div className="events-section">
+                          <h4>Market Signals</h4>
+
+                          {item.events.map((event, index) => (
+                            <div className="event-item" key={index}>
+                              <div className="event-header">
+                                <span className="event-type">
+                                  {event.type}
+                                </span>
+
+                                <span
+                                  className={
+                                    event.impact === "HIGH"
+                                      ? "event-high"
+                                      : event.impact === "MEDIUM"
+                                      ? "event-medium"
+                                      : "event-low"
+                                  }
+                                >
+                                  {event.impact} IMPACT
+                                </span>
+                              </div>
+
+                              <p>{event.title}</p>
+                            </div>
+                          ))}
+                        </div>
+                      
+                      )}
                       {chartData[item.symbol]?.length > 0 && (
                       <div className="chart-section">
                         <h4>Price Trend</h4>
@@ -535,6 +648,7 @@ const loadChartData = async (symbol) => {
                 </div>
               ))}
             </div>
+            </>
           )}
         </section>
 

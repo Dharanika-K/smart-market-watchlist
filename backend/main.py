@@ -6,7 +6,7 @@ from database import (
     snapshots_collection
 )
 from models import WatchlistCreate, AddStock
-from market_service import get_stock_data
+from market_service import get_stock_data, get_market_events
 from change_engine import calculate_change
 from datetime import datetime, timezone
 from bson import ObjectId
@@ -94,52 +94,58 @@ def get_watchlists():
 # ---------------------------------------
 
 @app.post("/watchlists/{watchlist_id}/stocks")
-def add_stock(
-    watchlist_id: str,
-    data: AddStock
-):
-
+@app.post("/watchlists/{watchlist_id}/stocks")
+def add_stock(watchlist_id: str, data: AddStock):
     symbol = data.symbol.upper().strip()
 
-    try:
+    if not symbol:
+        raise HTTPException(
+            status_code=400,
+            detail="Stock symbol cannot be empty"
+        )
 
+    try:
         watchlist = watchlists_collection.find_one(
             {"_id": ObjectId(watchlist_id)}
         )
-
     except Exception:
-
         raise HTTPException(
             status_code=400,
             detail="Invalid watchlist ID"
         )
 
     if not watchlist:
-
         raise HTTPException(
             status_code=404,
             detail="Watchlist not found"
         )
 
-    if symbol not in watchlist.get(
-        "symbols",
-        []
-    ):
-
-        watchlists_collection.update_one(
-            {"_id": ObjectId(watchlist_id)},
-            {
-                "$push": {
-                    "symbols": symbol
-                }
-            }
+    # Check whether the stock already exists
+    if symbol in watchlist.get("symbols", []):
+        raise HTTPException(
+            status_code=400,
+            detail=f"{symbol} is already in this watchlist"
         )
+
+    # Validate the symbol using market data
+    try:
+        get_stock_data(symbol)
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{symbol} is not a valid or supported stock symbol"
+        )
+
+    # Add only after successful validation
+    watchlists_collection.update_one(
+        {"_id": ObjectId(watchlist_id)},
+        {"$push": {"symbols": symbol}}
+    )
 
     return {
         "message": f"{symbol} added",
         "symbol": symbol
     }
-
 
 # ---------------------------------------
 # REMOVE STOCK
@@ -234,6 +240,17 @@ def get_stock_history(symbol: str):
             status_code=404,
             detail=str(e)
         )
+
+@app.get("/stocks/{symbol}/events")
+def get_stock_events(symbol: str):
+    try:
+        return {
+            "symbol": symbol.upper(),
+            "events": get_market_events(symbol)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
 @app.get("/stocks/{symbol}")
 def get_stock(symbol: str):
 
@@ -308,12 +325,16 @@ def get_changes(
                 if previous
                 else None
             )
+            last_checked = previous["checked_at"] if previous else None
+
+            events = get_market_events(symbol)
 
             change = calculate_change(
                 current_price=current["price"],
                 previous_price=previous_price,
                 current_volume=current["volume"],
-                average_volume=current["average_volume"]
+                average_volume=current["average_volume"],
+                events=events
             )
 
             results.append({
@@ -321,6 +342,9 @@ def get_changes(
                 "current_price": current["price"],
                 "previous_price": previous_price,
                 "current_volume": current["volume"],
+                "last_checked": last_checked,
+                "data_status": current.get("data_status", "UNKNOWN"),
+                "data_timestamp": current.get("timestamp"),
                 **change
             })
 
